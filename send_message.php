@@ -1,53 +1,51 @@
 <?php
-header('Content-Type: application/json');
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Content-Type: application/json");
+
 $conn = new mysqli("localhost", "root", "", "final_asp");
 
 if ($conn->connect_error) {
-    echo json_encode(["error" => "Connection failed"]);
+    echo json_encode(["success" => false, "message" => "Connection failed: " . $conn->connect_error]);
     exit;
 }
 
-// Read JSON input from Angular
 $data = json_decode(file_get_contents("php://input"), true);
+$userId = intval($data["user_id"]);
+$name = $conn->real_escape_string($data["name"]);
+$email = $conn->real_escape_string($data["email"]);
+$subject = $conn->real_escape_string($data["subject"]);
+$message = $conn->real_escape_string($data["message"]);
 
-// Sanitize and extract values
-$user_id = isset($data['user_id']) && is_numeric($data['user_id']) ? intval($data['user_id']) : null;
-$name = trim($data['name'] ?? '');
-$email = trim($data['email'] ?? '');
-$subject = trim($data['subject'] ?? '');
-$message = trim($data['message'] ?? '');
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    echo json_encode(["success" => false, "message" => "Invalid email."]);
+    exit;
+}
 
-// Basic validation
-if ($name && $email && $subject && $message) {
+// DEBUG: Check if the user ID exists in users table
+$checkUser = $conn->prepare("SELECT id FROM users WHERE id = ?");
+$checkUser->bind_param("i", $userId);
+$checkUser->execute();
+$userResult = $checkUser->get_result();
 
-    // Prepare SQL
-    $stmt = $conn->prepare("INSERT INTO messages (user_id, name, email, subject, message) VALUES (?, ?, ?, ?, ?)");
-    
-    // Bind values (user_id can be null)
-    $stmt->bind_param("issss", $user_id, $name, $email, $subject, $message);
+if ($userResult->num_rows === 0) {
+    echo json_encode(["success" => false, "message" => "User ID not found in users table."]);
+    exit;
+}
 
-    if ($stmt->execute()) {
-        echo json_encode([
-            "success" => true,
-            "message" => "Message saved successfully"
-        ]);
-    } else {
-        http_response_code(500);
-        echo json_encode([
-            "success" => false,
-            "error" => "Database error: " . $stmt->error
-        ]);
-    }
+$sql = "INSERT INTO messages (user_id, name, email, subject, message) VALUES (?, ?, ?, ?, ?)";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("is", $userId, $name, $email, $subject, $message);
 
-    $stmt->close();
+if ($stmt->execute()) {
+    echo json_encode(["success" => true]);
 } else {
-    // One or more fields are missing
-    http_response_code(400);
     echo json_encode([
         "success" => false,
-        "error" => "Please fill in all required fields."
+        "message" => "SQL Error: " . $stmt->error
     ]);
 }
 
+$stmt->close();
 $conn->close();
 ?>
