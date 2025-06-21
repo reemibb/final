@@ -64,8 +64,14 @@ getContactContent() {
   return this.http.get<any>(this.baseUrl + 'get_contact_content.php');
 }
 
-sendMessage(data: any) {
-  return this.http.post(this.baseUrl + 'send_message.php', data);
+sendMessage(userId: number, name: string, email: string, subject: string, message: string): Observable<any> {
+  return this.http.post(this.baseUrl + 'send_message.php', {
+    user_id: userId,
+    name: name,
+    email: email,
+    subject: subject,
+    message: message
+  });
 }
 
 
