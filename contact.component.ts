@@ -10,9 +10,10 @@ import { ConnectService } from '../connect.service';
 export class ContactComponent implements OnInit {
 
   content: any = {};
+  userId: number = 0; 
+  showAlert = false;
 
   formData = {
-    user_id: 0,
   name: '',
   email: '',
   subject: '',
@@ -29,29 +30,34 @@ export class ContactComponent implements OnInit {
       next: res => this.content = res,
       error: () => console.error('Failed to load body content')
     });
-    this.formData.user_id = Number(localStorage.getItem('user_id'));
   this.connectService.getContactContent().subscribe({
     next: res => this.content = res,
     error: () => console.error('Failed to load body content')
   });
+  this.userId = Number(localStorage.getItem('user_id'));
   }
 
 
   submitMessage() {
-  console.log('Sending message:', this.formData); // 👀
-  this.connectService.sendMessage(this.formData).subscribe({
-    next: (res) => {
-      console.log('Message response:', res);
-      alert('Message sent successfully!');
+  this.connectService.sendMessage(this.userId, this.formData.name, this.formData.email, this.formData.subject, this.formData.message).subscribe(
+    (res: any) => {
+      if (res.success) {
+        this.showAlert = true;
+        setTimeout(() => this.showAlert = false, 5000); // Auto-dismiss after 5s
+        this.formData.name = ''; // Clear field
+        this.formData.email = ''; // Clear field
+        this.formData.subject = ''; // Clear field
+        this.formData.message = ''; // Clear field
+      } else {
+        alert(res.message || "Message failed to send.");
+      }
     },
-    error: (err) => {
-      console.error('Message send failed:', err);
-      alert('Something went wrong.');
-    }
-  });
+    () => alert("Server error during sending.")
+  );
+}
 }
 
 
   // Add any methods or properties needed for the tips component
 
-}
+
