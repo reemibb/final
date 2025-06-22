@@ -218,64 +218,76 @@ export class GenerateComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   
   // List generation
-  generatePackingList() {
-    if (!this.validateInputs()) {
-      this.showAlert('Please fill in all required fields', 'warning');
-      return;
-    }
-    
-    this.packingList = [];
-    
-    // Generate items based on trip type
-    if (this.selectedTripType === 'Business') {
-      this.packingList.push('👔 Formal Clothes', '💼 Laptop', '📋 Business Documents', '🪞 Formal Shoes', '👕 Dress Shirts');
-    } else if (this.selectedTripType === 'Adventure') {
-      this.packingList.push('🥾 Hiking Boots', '🧭 Compass', '🔦 Flashlight', '🧦 Thick Socks', '🪒 Multi-tool');
-    } else {
-      this.packingList.push('👕 Casual Wear', '📱 Phone Charger', '🧴 Toiletries', '👟 Comfortable Shoes', '🧢 Hat/Cap');
-    }
+  // In your generatePackingList() method in generate.component.ts
 
-    // Add items based on activities
-    Object.entries(this.selectedActivities).forEach(([activity, selected]) => {
-      if (selected) {
-        if (activity === 'Beach') this.packingList.push('🏖️ Swimwear', '🧴 Sunscreen', '🕶️ Sunglasses', '🧖‍♂️ Beach Towel');
-        if (activity === 'Hiking') this.packingList.push('🥾 Hiking Shoes', '🎒 Backpack', '🧰 First Aid Kit', '🧴 Insect Repellent');
-        if (activity === 'Photography') this.packingList.push('📷 Camera', '🔋 Extra Batteries', '🧹 Lens Cleaning Kit', '💾 Memory Cards');
-        if (activity === 'Sightseeing') this.packingList.push('🗺️ Maps/Guidebooks', '🥾 Walking Shoes', '🎒 Day Backpack', '🔍 Binoculars');
-      }
-    });
-
-    // Adjust based on packing preference
-    if (this.selectedPack === 'light') {
-      this.packingList = this.packingList.slice(0, Math.min(7, this.packingList.length));
-    } else if (this.selectedPack === 'heavy') {
-      this.packingList.push('🧳 Extra Clothes', '🔌 Multi-adapter', '🔒 Luggage Locks', '🧪 Laundry Supplies');
-    }
-
-    // Add weather-specific items
-    if (this.includeWeather && this.weatherInfo) {
-      const temp = this.weatherInfo.main.temp;
-      if (temp < 10) {
-        this.packingList.push('🧥 Heavy Winter Jacket', '🧣 Scarf', '🧤 Gloves', '👢 Winter Boots');
-      } else if (temp < 20) {
-        this.packingList.push('🧥 Light Jacket', '👖 Long Pants');
-      } else if (temp > 25) {
-        this.packingList.push('🕶️ Sunglasses', '🧢 Hat', '👕 Light Clothing', '💧 Water Bottle');
-      }
-      
-      // Add items based on weather condition
-      const condition = this.weatherInfo.weather[0].main.toLowerCase();
-      if (condition.includes('rain')) {
-        this.packingList.push('☂️ Umbrella', '🧥 Raincoat');
-      } else if (condition.includes('snow')) {
-        this.packingList.push('🧤 Snow Gloves', '🧣 Thermal Wear');
-      }
-    }
-    
-    // Remove duplicates and show modal
-    this.packingList = [...new Set(this.packingList)];
-    if (this.modalInstance) this.modalInstance.show();
+generatePackingList() {
+  if (!this.validateInputs()) {
+    this.showAlert('Please fill in all required fields', 'warning');
+    return;
   }
+  
+  this.packingList = [];
+  
+  // Generate items based on trip type
+  if (this.selectedTripType === 'Business') {
+    this.packingList.push('👔 Formal Clothes', '💼 Laptop', '📋 Business Documents', '🪞 Formal Shoes', '👕 Dress Shirts');
+  } else if (this.selectedTripType === 'Adventure') {
+    this.packingList.push('🥾 Hiking Boots', '🧭 Compass', '🔦 Flashlight', '🧦 Thick Socks', '🪒 Multi-tool');
+  } else {
+    this.packingList.push('👕 Casual Wear', '📱 Phone Charger', '🧴 Toiletries', '👟 Comfortable Shoes', '🧢 Hat/Cap');
+  }
+
+  // Add items based on activities
+  Object.entries(this.selectedActivities).forEach(([activity, selected]) => {
+    if (selected) {
+      if (activity === 'Beach') this.packingList.push('🏖️ Swimwear', '🧴 Sunscreen', '🕶️ Sunglasses', '🧖‍♂️ Beach Towel');
+      if (activity === 'Hiking') this.packingList.push('🥾 Hiking Shoes', '🎒 Backpack', '🧰 First Aid Kit', '🧴 Insect Repellent');
+      if (activity === 'Photography') this.packingList.push('📷 Camera', '🔋 Extra Batteries', '🧹 Lens Cleaning Kit', '💾 Memory Cards');
+      if (activity === 'Sightseeing') this.packingList.push('🗺️ Maps/Guidebooks', '🥾 Walking Shoes', '🎒 Day Backpack', '🔍 Binoculars');
+    }
+  });
+
+  // Fix: Adjust based on packing preference using lowercase comparison
+  const packPreference = this.selectedPack.toLowerCase();
+  
+  if (packPreference === 'light') {
+    // For light packing, limit to fewer items
+    this.packingList = this.packingList.slice(0, Math.min(7, this.packingList.length));
+    // Add some lightweight essentials
+    this.packingList.push('🧴 Travel-size Toiletries', '👕 Minimal Clothing');
+  } else if (packPreference === 'heavy') {
+    // For heavy packing, add extra items
+    this.packingList.push('🧳 Extra Clothes', '🔌 Multi-adapter', '🔒 Luggage Locks', '🧪 Laundry Supplies');
+    this.packingList.push('📱 Backup Phone', '🔋 Power Bank', '💊 Extra Medications');
+  } else if (packPreference === 'medium') {
+    // For medium packing, add a balanced set
+    this.packingList.push('🔌 Phone Charger', '💊 Basic Medications', '📖 Reading Material');
+  }
+
+  // Add weather-specific items
+  if (this.includeWeather && this.weatherInfo) {
+    const temp = this.weatherInfo.main.temp;
+    if (temp < 10) {
+      this.packingList.push('🧥 Heavy Winter Jacket', '🧣 Scarf', '🧤 Gloves', '👢 Winter Boots');
+    } else if (temp < 20) {
+      this.packingList.push('🧥 Light Jacket', '👖 Long Pants');
+    } else if (temp > 25) {
+      this.packingList.push('🕶️ Sunglasses', '🧢 Hat', '👕 Light Clothing', '💧 Water Bottle');
+    }
+    
+    // Add items based on weather condition
+    const condition = this.weatherInfo.weather[0].main.toLowerCase();
+    if (condition.includes('rain')) {
+      this.packingList.push('☂️ Umbrella', '🧥 Raincoat');
+    } else if (condition.includes('snow')) {
+      this.packingList.push('🧤 Snow Gloves', '🧣 Thermal Wear');
+    }
+  }
+  
+  // Remove duplicates and show modal
+  this.packingList = [...new Set(this.packingList)];
+  if (this.modalInstance) this.modalInstance.show();
+}
   
   validateInputs(): boolean {
     return Boolean(
