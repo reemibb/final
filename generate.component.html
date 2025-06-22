@@ -64,9 +64,9 @@
         <div class="mt-3 mt-md-4">
           <label class="form-label form-label-sm">📦 Packing Preference</label>
           <select class="form-select form-select-sm form-select-md-lg" id="packingPref" [(ngModel)]="selectedPack" name="packPref">
-            <option value="" disabled selected>Select packing preference</option>
-            <option *ngFor="let pack of content.packs" [value]="pack.toLowerCase()">{{ pack }}</option>
-          </select>
+          <option value="" disabled selected>Select packing preference</option>
+          <option *ngFor="let pack of content.packs" [value]="pack.toLowerCase()">{{ pack }}</option>
+        </select>
         </div>
 
         <!-- Generate Button -->
