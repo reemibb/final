@@ -14,6 +14,7 @@ export class BodyComponent implements OnInit {
   email: string = '';
   userId: number = 0; 
   showAlert = false;
+  ratings: any[] = [];
 
 
   constructor(
@@ -37,6 +38,13 @@ export class BodyComponent implements OnInit {
       next: res => this.content = res,
       error: () => console.error('Failed to load body content')
     });
+    this.connectService.getRatings().subscribe({
+      next: res => {
+        this.ratings = res;
+        console.log('Loaded ratings:', this.ratings);
+      },
+      error: err => console.error('Failed to load ratings:', err)
+    });
     this.userId = Number(localStorage.getItem('user_id'));
   }
 subscribe() {
@@ -55,5 +63,12 @@ subscribe() {
     () => alert("Server error during subscription.")
   );
 }
+generateStars(rating: number): string[] {
+    const stars = [];
+    for (let i = 0; i < 5; i++) {
+      stars.push(i < rating ? 'filled' : 'empty');
+    }
+    return stars;
+  }
 
 }
