@@ -86,4 +86,8 @@ submitRating(userId: number, rating: number, feedback: string): Observable<any> 
   });
 }
 
+getRatings(): Observable<any[]> {
+  return this.http.get<any[]>(`${this.baseUrl}get_ratings.php`);
+}
+
 }
