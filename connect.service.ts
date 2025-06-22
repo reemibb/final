@@ -74,6 +74,9 @@ sendMessage(userId: number, name: string, email: string, subject: string, messag
   });
 }
 
+getUserName(userId: number) {
+  return this.http.get<{ firstname: string }>(`${this.baseUrl}get_user_name.php?user_id=${userId}`);
+}
 
 
 }
