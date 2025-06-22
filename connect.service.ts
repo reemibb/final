@@ -83,7 +83,7 @@ submitRating(userId: number, rating: number, feedback: string): Observable<any> 
     user_id: userId,
     rating: rating,
     feedback: feedback
-  });
+  }); 
 }
 
 getRatings(): Observable<any[]> {
