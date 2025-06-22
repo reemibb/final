@@ -18,15 +18,12 @@ export class RatingComponent implements OnInit {
   constructor(private connectService: ConnectService) {}
 
   ngOnInit() {
-    // Get user ID from localStorage or session
-    const userDataString = localStorage.getItem('userData');
-    if (userDataString) {
-      try {
-        const userData = JSON.parse(userDataString);
-        this.userId = userData.userId || 0;
-      } catch (e) {
-        console.error('Error parsing user data:', e);
-      }
+    const userIdStr = localStorage.getItem('user_id');
+    this.userId = userIdStr ? Number(userIdStr) : 0;
+    console.log('User ID from localStorage:', this.userId);
+    
+    if (this.userId <= 0) {
+      console.warn('No valid user ID found. User might not be logged in.');
     }
   }
 
